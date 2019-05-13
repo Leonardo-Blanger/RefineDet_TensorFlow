@@ -4,7 +4,7 @@ This project is intended to be a TensorFlow implementation of the RefineDet obje
 
 The project is constructed mostly with the `tf.keras` [(Chollet et al.)](https://keras.io/) API specs and thought to work on the TensorFlow Eager Excecution mode.
 
-I am conducting this as a side-project, so this repository is currently a work in progress. There are a few things that need to be better adjusted. In particular, I have not trained the model using the paper official parameters yet.
+I am conducting this as a side-project, so this repository is currently a work in progress. There are a few things that need to be better adjusted. In particular, I have not trained the model using the paper official parameters yet, and I still need to add a more clear documentation.
 
 Nonetheless, preliminary tests have produced very good results, so I am releasing an inference script, as well as a weights file, trained on the 20 class PASCAL VOC 07+12 trainval datasets [(Everingham et al.)](http://host.robots.ox.ac.uk/pascal/VOC/). These weights are already achieving more the 70% mean AP on the VOC 2007 test set, not far from the ~80% reported on the paper.
 
