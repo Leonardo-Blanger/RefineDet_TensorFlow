@@ -6,7 +6,7 @@ I mostly worked on this project during spare time, and as a way to learn more ab
 
 The code has been completely adapted to work with TensorFlow 2.0, and it only uses TF operations, instead of python logic + `tf.py_function` as was the case in the initial version of this project, which gave a significant boost in training speed.
 
-I am releasing an inference demo script, as well as a weights file, trained on the 20 class PASCAL VOC 07+12 trainval datasets [(Everingham et al.)](http://host.robots.ox.ac.uk/pascal/VOC/). These weights are  achieving around 80% mean AP on the VOC 2007 test set, which is about the same as reported on the paper. But note that I used my own custom Python implementation of the VOC Mean Average Precision, which might deviate slightly from the official Matlab version.
+I am releasing an inference demo script, as well as a weights file, trained on the 20 class PASCAL VOC 07+12 trainval datasets [(Everingham et al.)](http://host.robots.ox.ac.uk/pascal/VOC/), with 320 x 320 input size. These weights are  achieving around 80% mean AP on the VOC 2007 test set, which is about the same as reported on the paper. But note that I used my own custom Python implementation of the VOC Mean Average Precision, which might deviate slightly from the official Matlab version.
 
 ### Running the demo
 
