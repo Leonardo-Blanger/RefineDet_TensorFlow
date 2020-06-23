@@ -1,30 +1,26 @@
 # RefineDet implementation with TensorFlow
 
-This project is intended to be a TensorFlow implementation of the RefineDet object detection model, from the paper *Single-Shot Refinement Neural Network for Object Detection* [(Zhang et al.)](https://arxiv.org/abs/1711.06897), originally made in Caffe.
+This project is intended to be a TensorFlow 2.0 implementation of the RefineDet object detection model, from the paper *Single-Shot Refinement Neural Network for Object Detection* [(Zhang et al.)](https://arxiv.org/abs/1711.06897), originally made in Caffe.
 
-The project is constructed mostly with the `tf.keras` [(Chollet et al.)](https://keras.io/) API specs and thought to work on the TensorFlow Eager Excecution mode.
+I am releasing an inference demo script, as well as a weights file, trained on the 20 class PASCAL VOC 07+12 trainval datasets [(Everingham et al.)](http://host.robots.ox.ac.uk/pascal/VOC/). These weights are already achieving around 80% mean AP on the VOC 2007 test set, which is about the same as reported on the paper.
 
-I am conducting this as a side-project, so this repository is currently a work in progress. There are a few things that need to be better adjusted. In particular, I have not trained the model using the paper official parameters yet, and I still need to add a more clear documentation.
+### Run the demo
 
-Nonetheless, preliminary tests have produced very good results, so I am releasing an inference script, as well as a weights file, trained on the 20 class PASCAL VOC 07+12 trainval datasets [(Everingham et al.)](http://host.robots.ox.ac.uk/pascal/VOC/). These weights are already achieving more the 70% mean AP on the VOC 2007 test set, not far from the ~80% reported on the paper.
-
-### Inference
-
-In order to make predictions, first download the weights file from [here](https://mega.nz/#!mi4HnIra!Cs5K54QUDFb9kSu5ciRzZoSe-AraCFxIH0rUjmmOPVQ) and put it inside the `weights` directory. Then, simply run:
+In order to run the demo script on the sample images, simply run:
 
 ```Shell
-python refinedet_detection.py --images <IMAGES> --output_dir <OUTPUT>
+python demo.py
 ```
 
-`<IMAGES>` can be either the path to an image or to a directory containing the images to be fed to the model. `<OUTPUT>` is the directory in which to save the images with the drawn detected boxes. Run this script without arguments to apply the model to the sample images in the `samples` directory.
+If you want to use this in another project. Simply import the `models.RefineDetVGG16` class. Take a look at the file for clarification on the available parameters.
 
-If you want to use this in another project. Simply import the `detect` method from `refinedet_detection.py`. Take a look at the file for clarification on the available parameters.
+If you want to implement a different RefineDet based detector, you can extend `models.RefineDetBase` class and implement your own forward pass logic inside the `call` method. Follow the example in the `RefineDetVGG16` class.
 
-If you want to retrain it on another dataset, I believe the files are easy enough to understant what is happening, so use the files `train_refinedet_voc.py` and `voc_evaluation.py` as references for training and evaluation, respectively. If you are going to use the VGG16 CNN backbone [(Simonyan et al.)](https://arxiv.org/abs/1409.1556), download the pretrained weights from [here](https://mega.nz/#!zrg3BYZL!g2sZkmqjyvLZHXuENbcl6106N7ZbjiEG4tsu9_Qdqkg).
+If you want to retrain it on another dataset, I believe the files are easy enough to understant what is happening, so use the files `train_refinedet_voc.py` and `eval_refinedet_voc.py` as references for training and evaluation, respectively. If you are going to use the VGG16 CNN backbone [(Simonyan et al.)](https://arxiv.org/abs/1409.1556), download the pretrained weights from the [here](https://drive.google.com/open?id=1sBmajn6vOE7qJ8GnxUJt4fGPuffVUZox). These weights were provided by the popular [pierluigiferrari](https://github.com/pierluigiferrari)'s [ssd_keras](https://github.com/pierluigiferrari/ssd_keras) repository.
 
 ### Samples
 
-Here are some sample detections on the PASCAL VOC 2007 test set. For now, the script does not print the class names, nor uses different box colors to discriminate them, as it is common on related projects.
+Here are some sample detections on the PASCAL VOC 2007 test set.
 
 <img src="https://raw.githubusercontent.com/Leonardo-Blanger/RefineDet_TensorFlow/master/samples/detections/000001_det.png" width="430" height="430" /> <img src="https://raw.githubusercontent.com/Leonardo-Blanger/RefineDet_TensorFlow/master/samples/detections/000002_det.png" width="430" height="430" />
 <img src="https://raw.githubusercontent.com/Leonardo-Blanger/RefineDet_TensorFlow/master/samples/detections/000004_det.png" width="430" height="430" /> <img src="https://raw.githubusercontent.com/Leonardo-Blanger/RefineDet_TensorFlow/master/samples/detections/000006_det.png" width="430" height="430" />
