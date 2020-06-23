@@ -18,13 +18,39 @@ python demo.py
 
 and it will perform inference on a few Pascal VOC test images inside the `samples` directory. The results will be displayed on the screen and saved inside `samples/detections`.
 
+### Running evaluation
+
+If you want to perform evaluation on the whole Pascal VOC 2007 test set, as done in the paper, first download the 2007 test partition of the dataset, and extract it inside `./data` . You can find the the main Pascal VOC files in the [pjreddie mirror](https://pjreddie.com/projects/pascal-voc-dataset-mirror/).
+
+Assuming you already have the weights file inside `./weights`, you just have to run.
+
+```Shell
+python eval_refinedet_voc.py
+```
+
+Take a look in this file to see optional parameters.
+
+### Training
+
+If you want to train from scratch, you will need to download the pretrained weigths for the VGG16 backbone CNN from [here](https://drive.google.com/open?id=1sBmajn6vOE7qJ8GnxUJt4fGPuffVUZox). These weights were provided by the popular [pierluigiferrari](https://github.com/pierluigiferrari)'s [ssd_keras](https://github.com/pierluigiferrari/ssd_keras) repository.
+
+You will also need the Pascal VOC 2007 and 2012 trainval partitions, which you can also find in the [pjreddie mirror](https://pjreddie.com/projects/pascal-voc-dataset-mirror/).
+
+If you have the pretrained weights inside `./weights` and the VOC data extracted inside `./data`, then training is just running the train script:
+
+```Shell
+python train_refinedet_voc.py
+```
+
+Take a look in this file to see optional parameters.
+
 ### Using this project
 
 If you want to use this implementation in another project, simply import the `models.RefineDetVGG16` class. Take a look at the file for clarification on the available parameters.
 
 If you want to implement a different RefineDet based detector, you can extend `models.RefineDetBase` class and implement your own forward pass logic inside the `call` method. Follow the example in the `RefineDetVGG16` class.
 
-If you want to retrain it on another dataset, I believe the files are easy enough to understant what is happening, so use the files `train_refinedet_voc.py` and `eval_refinedet_voc.py` as references for training and evaluation, respectively. If you are going to use the VGG16 CNN backbone [(Simonyan et al.)](https://arxiv.org/abs/1409.1556), download the pretrained weights from the [here](https://drive.google.com/open?id=1sBmajn6vOE7qJ8GnxUJt4fGPuffVUZox). These weights were provided by the popular [pierluigiferrari](https://github.com/pierluigiferrari)'s [ssd_keras](https://github.com/pierluigiferrari/ssd_keras) repository.
+If you want to retrain it on another dataset, I believe the files are easy enough to understant what is happening, so use the files `train_refinedet_voc.py` and `eval_refinedet_voc.py` as references for training and evaluation, respectively. If you are going to use the VGG16 CNN backbone [(Simonyan et al.)](https://arxiv.org/abs/1409.1556), download the pretrained weights from the 
 
 ### Samples
 
