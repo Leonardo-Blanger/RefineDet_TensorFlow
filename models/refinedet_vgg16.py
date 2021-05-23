@@ -60,7 +60,6 @@ class RefineDetVGG16(RefineDetBase):
             self.tcb_blocks.append(tcb_block)
             
 
-    @tf.function
     def call(self, x, training=False, decode=False):
         ftm4_3, ftm5_3, ftm7 = self.base(x)
         ftm4_3_norm = self.feat4_3_norm(ftm4_3)

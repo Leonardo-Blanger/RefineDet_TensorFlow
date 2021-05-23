@@ -34,7 +34,6 @@ class RefineDetBase(tf.keras.Model):
         super(RefineDetBase, self).__init__(**kwargs)
 
 
-    @tf.function
     def train_step(self, data):
         x, y_true = data
 
@@ -59,7 +58,6 @@ class RefineDetBase(tf.keras.Model):
                 'total_loss': loss}
 
 
-    @tf.function
     def decode(self, output):
         (arm_cls, arm_loc), (odm_cls, odm_loc), anchors = output
         refined_anchors = locenc2minmax(arm_loc, anchors, self.variances)

@@ -4,7 +4,6 @@ from tensorflow.keras import backend as K
 from utils import minmax2locenc, locenc2minmax, IOU, NMS
 
 
-@tf.function(experimental_relax_shapes=True)
 def encode(boxes_batch, anchors, num_classes=None,
            pos_iou_threshold=0.5,
            neg_iou_threshold=0.5,
@@ -92,7 +91,6 @@ def encode(boxes_batch, anchors, num_classes=None,
     return batch_cls, batch_loc
 
 
-@tf.function(experimental_relax_shapes=True)
 def decode(encoded_output, anchors,
            conf_threshold=0.5, nms_threshold=0.45,
            max_preds_per_class=100,

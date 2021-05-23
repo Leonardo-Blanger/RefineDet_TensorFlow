@@ -21,7 +21,6 @@ class DetectionBlock(tf.keras.Model):
                                kernel_regularizer=kernel_regularizer)
 
 
-    @tf.function
     def call(self, x, return_anchors=False):
         cls = self.conv_cls(x)
         loc = self.conv_loc(x)

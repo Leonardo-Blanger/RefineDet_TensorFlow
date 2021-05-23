@@ -2,14 +2,14 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def read_jpeg_image(img_path):
     image = tf.io.read_file(img_path)
     image = tf.image.decode_jpeg(image, channels=3)
     return image
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def resize_image_and_boxes(image, boxes, new_size=(320, 320)):
     prev_height = tf.shape(image)[0]
     prev_width = tf.shape(image)[1]
@@ -28,7 +28,7 @@ def resize_image_and_boxes(image, boxes, new_size=(320, 320)):
     return image, boxes
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def absolute2relative(boxes, size):
     boxes = tf.cast(boxes, tf.float32)
     xmins = boxes[..., 0] / tf.cast(size[1], tf.float32)
@@ -42,7 +42,7 @@ def absolute2relative(boxes, size):
     return boxes
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def minmax2xywh(boxes):
     xmin, ymin, xmax, ymax = [boxes[..., i] for i in range(4)]
     cx = (xmin + xmax)*0.5
@@ -53,7 +53,7 @@ def minmax2xywh(boxes):
     return tf.concat([new_boxes, boxes[..., 4:]], axis=-1)
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def xywh2minmax(boxes):
     cx, cy, w, h = [boxes[..., i] for i in range(4)]
     xmin = cx - w*0.5
@@ -64,7 +64,7 @@ def xywh2minmax(boxes):
     return tf.concat([new_boxes, boxes[..., 4:]], axis=-1)
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def locenc2xywh(loc, anchors, variances):
     anchors_xywh = minmax2xywh(anchors)
     anchor_cx, anchor_cy, anchor_w, anchor_h = [anchors_xywh[..., i]
@@ -80,12 +80,12 @@ def locenc2xywh(loc, anchors, variances):
     return boxes_xywh
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def locenc2minmax(loc, anchors, variances):
     return xywh2minmax(locenc2xywh(loc, anchors, variances))
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def xywh2locenc(boxes, anchors, variances):
     anchors_xywh = minmax2xywh(anchors)
     anchor_cx, anchor_cy, anchor_w, anchor_h = [anchors_xywh[..., i]
@@ -103,12 +103,12 @@ def xywh2locenc(boxes, anchors, variances):
     return loc
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def minmax2locenc(boxes, anchors, variances):
     return xywh2locenc(minmax2xywh(boxes), anchors, variances)
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def IOU(boxes1, boxes2):
     # boxes1.shape: (B, (N), 4)
     # boxes2.shape: (M, 4) or (B, M, 4)
@@ -143,7 +143,7 @@ def IOU(boxes1, boxes2):
     return inter_area / union_area
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def NMS(boxes, top_k=100, nms_threshold=0.45):
     num_boxes = tf.minimum(top_k, tf.shape(boxes)[0])
     _, idxs = tf.nn.top_k(boxes[:, 5], k=num_boxes)
@@ -177,7 +177,7 @@ def NMS(boxes, top_k=100, nms_threshold=0.45):
     return boxes
 
 
-@tf.function(experimental_relax_shapes=True)
+
 def clip_boxes(boxes, x0, y0, x1, y1):
     xmin, ymin, xmax, ymax = [boxes[:, i] for i in range(4)]
 
