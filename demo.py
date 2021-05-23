@@ -23,21 +23,21 @@ for image_file in os.listdir(IMAGES_DIR):
     except IsADirectoryError:
         continue
 
-    
     image_inp = image.resize((IMAGE_SIZE[1], IMAGE_SIZE[0]))
     image_inp = np.array(image_inp).astype('float32')
     image_inp = np.expand_dims(image_inp, 0)
-    
+
     bboxes = model(image_inp, decode=True)[0]
-    
+
     bboxes = ia.BoundingBoxesOnImage([
-        ia.BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2, label=VOC_CLASSES[int(label)])
+        ia.BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2,
+                       label=VOC_CLASSES[int(label)])
         for x1, y1, x2, y2, label, conf in bboxes
-    ], shape=(1,1))
+    ], shape=(1, 1))
 
     image = np.array(image)
     bboxes = bboxes.on(image)
-    image = bboxes.draw_on_image(image, color=[0,0,255], size=2)
+    image = bboxes.draw_on_image(image, color=[0, 0, 255], size=2)
 
     output_file = '.'.join(image_file.split('.')[:-1]) + '_det.jpg'
     Image.fromarray(image).save(path.join(OUTPUT_DIR, output_file))

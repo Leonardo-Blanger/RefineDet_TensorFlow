@@ -50,10 +50,12 @@ class MeanAveragePrecision(tf.keras.metrics.Metric):
             class_predictions = [
                 boxes[boxes[:, 4] == cls] for boxes in self.predictions]
             class_ignore = [
-                ignore[boxes[:, 4] == cls] for ignore, boxes in zip(self.ignore, self.ground_truth)
+                ignore[boxes[:, 4] == cls]
+                for ignore, boxes in zip(self.ignore, self.ground_truth)
             ]
 
-            APs.append(self.AP(class_ground_truth, class_predictions, class_ignore))
+            APs.append(self.AP(
+                class_ground_truth, class_predictions, class_ignore))
 
         return APs
 

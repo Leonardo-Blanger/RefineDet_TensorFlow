@@ -13,13 +13,12 @@ class DetectionBlock(tf.keras.Model):
         self.boxes_per_cell = len(self.aspect_ratios)
         self.scale = scale
 
-        self.conv_cls = Conv2D(num_classes * self.boxes_per_cell, kernel_size=3,
-                               padding='same', activation=None,
+        self.conv_cls = Conv2D(num_classes * self.boxes_per_cell,
+                               kernel_size=3, padding='same', activation=None,
                                kernel_regularizer=kernel_regularizer)
         self.conv_loc = Conv2D(4 * self.boxes_per_cell, kernel_size=3,
                                padding='same', activation=None,
                                kernel_regularizer=kernel_regularizer)
-
 
     def call(self, x, return_anchors=False):
         cls = self.conv_cls(x)
@@ -36,14 +35,13 @@ class DetectionBlock(tf.keras.Model):
         if return_anchors:
             anchors = self.build_anchors(ftmap_height, ftmap_width)
             return cls, loc, anchors
-        
-        return cls, loc
 
+        return cls, loc
 
     @tf.function
     def build_anchors(self, feature_height, feature_width):
-        cy, cx = np.meshgrid(range(feature_height), range(feature_width),
-                             indexing = 'ij')
+        cy, cx = np.meshgrid(
+            range(feature_height), range(feature_width), indexing='ij')
         cx = (cx.astype('float32') + 0.5) / feature_width
         cy = (cy.astype('float32') + 0.5) / feature_height
 
@@ -56,13 +54,15 @@ class DetectionBlock(tf.keras.Model):
         height = np.zeros_like(cy)
 
         for i in range(self.boxes_per_cell):
-            width[..., i] = min(1.0, self.scale * np.sqrt(self.aspect_ratios[i]))
-            height[..., i] = min(1.0, self.scale / np.sqrt(self.aspect_ratios[i]))
+            width[..., i] = min(
+                1.0, self.scale * np.sqrt(self.aspect_ratios[i]))
+            height[..., i] = min(
+                1.0, self.scale / np.sqrt(self.aspect_ratios[i]))
 
         xmin = cx - width * 0.5
         ymin = cy - height * 0.5
         xmax = cx + width * 0.5
         ymax = cy + height * 0.5
         anchors = np.stack([xmin, ymin, xmax, ymax], axis=-1)
-        
+
         return anchors.reshape((-1, 4))

@@ -1,5 +1,4 @@
 import tensorflow as tf
-from tensorflow.keras import backend as K
 
 from .utils import minmax2locenc, locenc2minmax, IOU, NMS
 
@@ -34,7 +33,8 @@ def encode(boxes_batch, anchors, num_classes=None,
 
         # Then find the best ground truth for each anchor
         max_iou_per_anchor = tf.reduce_max(batch_ious, axis=0)
-        best_match_per_anchor = tf.argmax(batch_ious, axis=0, output_type=tf.int32)
+        best_match_per_anchor = tf.argmax(batch_ious, axis=0,
+                                          output_type=tf.int32)
 
         # Identify which anchors are positives/negatives
         positive = max_iou_per_anchor >= pos_iou_threshold
@@ -71,19 +71,16 @@ def encode(boxes_batch, anchors, num_classes=None,
         # Add to the encoded batch
         batch_cls_array = batch_cls_array.write(idx, cls)
         batch_loc_array = batch_loc_array.write(idx, loc)
-        #batch_cls.append(cls)
-        #batch_loc.append(loc)
 
         return idx + 1, batch_cls_array, batch_loc_array
 
+    batch_cls_array = tf.TensorArray(
+        tf.float32, size=batch_size, dynamic_size=False, clear_after_read=True)
+    batch_loc_array = tf.TensorArray(
+        tf.float32, size=batch_size, dynamic_size=False, clear_after_read=True)
 
-    batch_cls_array = tf.TensorArray(tf.float32, size=batch_size, dynamic_size=False,
-                                     clear_after_read=True)
-    batch_loc_array = tf.TensorArray(tf.float32, size=batch_size, dynamic_size=False,
-                                     clear_after_read=True)
-
-    _, batch_cls_array, batch_loc_array = tf.while_loop(_cond, _loop_body, 
-                                    [tf.constant(0), batch_cls_array, batch_loc_array])
+    _, batch_cls_array, batch_loc_array = tf.while_loop(
+        _cond, _loop_body, [tf.constant(0), batch_cls_array, batch_loc_array])
 
     batch_cls = batch_cls_array.stack()
     batch_loc = batch_loc_array.stack()
@@ -97,7 +94,6 @@ def decode(encoded_output, anchors,
            variances=[0.1, 0.1, 0.2, 0.2]):
 
     batch_cls, batch_loc = encoded_output
-    num_anchors = anchors.shape[-2]
     batch_size = batch_cls.shape[0]
 
     boxes_batch = []
@@ -117,13 +113,15 @@ def decode(encoded_output, anchors,
             class_loc = tf.boolean_mask(loc, mask=positives, axis=0)
 
             if len(anchors.shape) == 2:
-                pos_anchors = tf.boolean_mask(anchors, mask=positives, axis=0)
+                pos_anchors = tf.boolean_mask(
+                    anchors, mask=positives, axis=0)
             else:
-                pos_anchors = tf.boolean_mask(anchors[idx], mask=positives, axis=0)
+                pos_anchors = tf.boolean_mask(
+                    anchors[idx], mask=positives, axis=0)
 
             class_boxes = locenc2minmax(class_loc, pos_anchors, variances)
             class_conf = tf.expand_dims(class_conf, axis=-1)
-            
+
             class_boxes = tf.concat([class_boxes,
                                      tf.zeros_like(class_conf) + label,
                                      class_conf], axis=-1)
@@ -137,5 +135,5 @@ def decode(encoded_output, anchors,
         values=tf.concat(boxes_batch, axis=0),
         row_lengths=[tf.shape(boxes)[0] for boxes in boxes_batch]
     )
-    
+
     return boxes_batch

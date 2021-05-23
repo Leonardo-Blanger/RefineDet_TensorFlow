@@ -2,12 +2,10 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 
 
-
 def read_jpeg_image(img_path):
     image = tf.io.read_file(img_path)
     image = tf.image.decode_jpeg(image, channels=3)
     return image
-
 
 
 def resize_image_and_boxes(image, boxes, new_size=(320, 320)):
@@ -28,7 +26,6 @@ def resize_image_and_boxes(image, boxes, new_size=(320, 320)):
     return image, boxes
 
 
-
 def absolute2relative(boxes, size):
     boxes = tf.cast(boxes, tf.float32)
     xmins = boxes[..., 0] / tf.cast(size[1], tf.float32)
@@ -42,7 +39,6 @@ def absolute2relative(boxes, size):
     return boxes
 
 
-
 def minmax2xywh(boxes):
     xmin, ymin, xmax, ymax = [boxes[..., i] for i in range(4)]
     cx = (xmin + xmax)*0.5
@@ -53,7 +49,6 @@ def minmax2xywh(boxes):
     return tf.concat([new_boxes, boxes[..., 4:]], axis=-1)
 
 
-
 def xywh2minmax(boxes):
     cx, cy, w, h = [boxes[..., i] for i in range(4)]
     xmin = cx - w*0.5
@@ -62,7 +57,6 @@ def xywh2minmax(boxes):
     ymax = cy + h*0.5
     new_boxes = tf.stack([xmin, ymin, xmax, ymax], axis=-1)
     return tf.concat([new_boxes, boxes[..., 4:]], axis=-1)
-
 
 
 def locenc2xywh(loc, anchors, variances):
@@ -80,10 +74,8 @@ def locenc2xywh(loc, anchors, variances):
     return boxes_xywh
 
 
-
 def locenc2minmax(loc, anchors, variances):
     return xywh2minmax(locenc2xywh(loc, anchors, variances))
-
 
 
 def xywh2locenc(boxes, anchors, variances):
@@ -103,10 +95,8 @@ def xywh2locenc(boxes, anchors, variances):
     return loc
 
 
-
 def minmax2locenc(boxes, anchors, variances):
     return xywh2locenc(minmax2xywh(boxes), anchors, variances)
-
 
 
 def IOU(boxes1, boxes2):
@@ -143,25 +133,24 @@ def IOU(boxes1, boxes2):
     return inter_area / union_area
 
 
-
 def NMS(boxes, top_k=100, nms_threshold=0.45):
     num_boxes = tf.minimum(top_k, tf.shape(boxes)[0])
     _, idxs = tf.nn.top_k(boxes[:, 5], k=num_boxes)
     boxes = tf.gather_nd(boxes, indices=tf.expand_dims(idxs, axis=-1))
 
     ious = IOU(boxes, boxes)
-    
+
     def cond(idx, boxes):
         return idx < num_boxes
 
     def loop(idx, boxes):
-        if boxes[idx,4] == 0.0:
+        if boxes[idx, 4] == 0.0:
             return idx+1, boxes
 
         suppress = tf.logical_and(
             tf.range(num_boxes) > idx,
             ious[idx] >= nms_threshold)
-        
+
         indices = tf.boolean_mask(tf.range(num_boxes), mask=suppress, axis=0)
         indices = tf.expand_dims(indices, -1)
         updates = tf.zeros((tf.shape(indices)[0], tf.shape(boxes)[1]))
@@ -175,7 +164,6 @@ def NMS(boxes, top_k=100, nms_threshold=0.45):
     boxes = tf.boolean_mask(boxes, mask=remain, axis=0)
 
     return boxes
-
 
 
 def clip_boxes(boxes, x0, y0, x1, y1):
@@ -194,4 +182,3 @@ def clip_boxes(boxes, x0, y0, x1, y1):
     boxes = tf.concat([stacked_boxes, boxes[:, 4:]], axis=-1)
 
     return boxes
-

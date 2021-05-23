@@ -11,7 +11,7 @@ class TCBBlock(tf.keras.Model):
         self.conv1 = Conv2D(256, kernel_size=3,
                             padding='same', activation='relu',
                             kernel_regularizer=kernel_regularizer)
-        
+
         self.conv2 = Conv2D(256, kernel_size=3,
                             padding='same', activation=None,
                             kernel_regularizer=kernel_regularizer)
@@ -23,7 +23,6 @@ class TCBBlock(tf.keras.Model):
         self.conv3 = Conv2D(256, kernel_size=3,
                             padding='same', activation='relu',
                             kernel_regularizer=kernel_regularizer)
-
 
     @tf.function
     def call(self, ftm, next_ftm=None):

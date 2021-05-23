@@ -5,7 +5,7 @@ from os import path
 from .config import VOC_CLASSES
 
 
-def parse_annotations(xml_path, keep_difficult = False, return_difficulty = False):
+def parse_annotations(xml_path, keep_difficult=False, return_difficulty=False):
     with open(xml_path, 'r') as f:
         annotation = BeautifulSoup(f, 'xml')
 
@@ -37,15 +37,16 @@ def load_voc_dataset(dataroot='./data/VOCdevkit',
                      return_difficulty=False):
     img_paths, bboxes = [], []
     for year, split in splits:
-        ids_file = path.join(dataroot, year, 'ImageSets', 'Main', split + '.txt')
+        ids_file = path.join(
+            dataroot, year, 'ImageSets', 'Main', split + '.txt')
         with open(ids_file, 'r') as f:
             ids = [line.strip() for line in f.readlines()]
-        
+
         img_paths += [path.join(dataroot, year, 'JPEGImages', id+'.jpg')
                       for id in ids]
-        bboxes += [parse_annotations(path.join(dataroot, year, 'Annotations', id+'.xml'),
+        bboxes += [parse_annotations(path.join(dataroot, year,
+                                               'Annotations', id+'.xml'),
                                      keep_difficult=keep_difficult,
                                      return_difficulty=return_difficulty)
                    for id in ids]
     return np.array(img_paths), np.array(bboxes)
-    

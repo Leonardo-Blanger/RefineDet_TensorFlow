@@ -24,28 +24,28 @@ class RefineDetBase(tf.keras.Model):
         self.variances = variances
 
         self.refinedet_loss = RefineDetLoss(
-            num_classes = self.num_classes,
-            anchor_refinement_threshold = anchor_refinement_threshold,
+            num_classes=self.num_classes,
+            anchor_refinement_threshold=anchor_refinement_threshold,
             neg_to_pos_ratio=neg_to_pos_ratio,
-            pos_iou_threshold = pos_iou_threshold,
-            neg_iou_threshold = neg_iou_threshold,
-            variances = variances)
+            pos_iou_threshold=pos_iou_threshold,
+            neg_iou_threshold=neg_iou_threshold,
+            variances=variances)
 
         super(RefineDetBase, self).__init__(**kwargs)
-
 
     def train_step(self, data):
         x, y_true = data
 
         with tf.GradientTape() as tape:
             y_pred = self(x, training=True)
-            
+
             all_losses = self.refinedet_loss(y_true, y_pred)
             arm_cls_loss, arm_loc_loss, odm_cls_loss, odm_loc_loss = [
                 all_losses[i] for i in range(4)
             ]
             l2_reg_loss = tf.reduce_sum(self.losses)
-            loss = arm_cls_loss + arm_loc_loss + odm_cls_loss + odm_loc_loss + l2_reg_loss
+            loss = arm_cls_loss + arm_loc_loss + \
+                odm_cls_loss + odm_loc_loss + l2_reg_loss
 
         grad = tape.gradient(loss, self.trainable_variables)
         self.optimizer.apply_gradients(zip(grad, self.trainable_variables))
@@ -57,12 +57,12 @@ class RefineDetBase(tf.keras.Model):
                 'l2_reg_loss': l2_reg_loss,
                 'total_loss': loss}
 
-
     def decode(self, output):
         (arm_cls, arm_loc), (odm_cls, odm_loc), anchors = output
         refined_anchors = locenc2minmax(arm_loc, anchors, self.variances)
 
-        ignore = arm_cls[..., :1] >= self.anchor_refinement_threshold # not easy negatives
+        # not easy negatives
+        ignore = arm_cls[..., :1] >= self.anchor_refinement_threshold
         odm_cls *= 1.0 - tf.cast(ignore, tf.float32)
 
         return output_encoder.decode((odm_cls, odm_loc), refined_anchors,

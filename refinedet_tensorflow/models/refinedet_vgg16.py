@@ -1,6 +1,5 @@
-import numpy as np
 import tensorflow as tf
-from tensorflow.keras.layers import Conv2D, Conv2DTranspose, ZeroPadding2D
+from tensorflow.keras.layers import Conv2D, ZeroPadding2D
 
 from .custom_layers import L2Norm
 from .modules import DetectionBlock, TCBBlock
@@ -15,59 +14,62 @@ class RefineDetVGG16(RefineDetBase):
         self.aspect_ratios = aspect_ratios
         self.scales = scales
         self.num_scales = 4
-        
+
         super(RefineDetVGG16, self).__init__(**kwargs)
 
         if len(self.scales) != self.num_scales:
-            raise Exception('Wrong number of scales provided: len({}) != {}'.format(
-                self.scales, self.num_scales))
+            raise Exception(
+                'Wrong number of scales provided: len({}) != {}'.format(
+                    self.scales, self.num_scales))
 
         l2_reg = tf.keras.regularizers.l2(5e-4)
 
-        self.base = VGG16ReducedFC(output_features=['conv4_3', 'conv5_3', 'fc7'],
-                                   kernel_regularizer=l2_reg)
+        self.base = VGG16ReducedFC(
+            output_features=['conv4_3', 'conv5_3', 'fc7'],
+            kernel_regularizer=l2_reg)
 
         self.feat4_3_norm = L2Norm(10.0)
         self.feat5_3_norm = L2Norm(8.0)
 
         self.extras = tf.keras.Sequential([
-            Conv2D(256, kernel_size=1, strides=1, padding='same', activation='relu',
-                   kernel_regularizer=l2_reg, name='extra_conv1'),
+            Conv2D(256, kernel_size=1, strides=1, padding='same',
+                   activation='relu', kernel_regularizer=l2_reg,
+                   name='extra_conv1'),
             ZeroPadding2D(1),
-            Conv2D(512, kernel_size=3, strides=2, padding='valid', activation='relu',
-                   kernel_regularizer=l2_reg, name='extra_conv2')
+            Conv2D(512, kernel_size=3, strides=2, padding='valid',
+                   activation='relu', kernel_regularizer=l2_reg,
+                   name='extra_conv2')
         ])
 
         self.arm_blocks = []
         self.odm_blocks = []
         self.tcb_blocks = []
-        
+
         for i, scale in enumerate(self.scales):
             arm_block = DetectionBlock(num_classes=2,
                                        scale=scale,
                                        aspect_ratios=self.aspect_ratios,
-                                       name='arm_block%d'%(i+1),
+                                       name=f'arm_block{i+1}',
                                        kernel_regularizer=l2_reg)
             odm_block = DetectionBlock(num_classes=self.num_classes,
                                        scale=scale,
                                        aspect_ratios=self.aspect_ratios,
-                                       name='odm_block%d'%(i+1),
+                                       name=f'odm_block{i+1}',
                                        kernel_regularizer=l2_reg)
-            tcb_block = TCBBlock(name='tcb_block%d'%(i+1),
+            tcb_block = TCBBlock(name=f'tcb_block{i+1}',
                                  kernel_regularizer=l2_reg)
             self.arm_blocks.append(arm_block)
             self.odm_blocks.append(odm_block)
             self.tcb_blocks.append(tcb_block)
-            
 
     def call(self, x, training=False, decode=False):
         ftm4_3, ftm5_3, ftm7 = self.base(x)
         ftm4_3_norm = self.feat4_3_norm(ftm4_3)
         ftm5_3_norm = self.feat5_3_norm(ftm5_3)
         ext = self.extras(ftm7)
-        
+
         ftmaps = [ftm4_3_norm, ftm5_3_norm, ftm7, ext]
-        
+
         arm_cls, arm_loc, anchors = [], [], []
         for i, ftmap in enumerate(ftmaps):
             cls, loc, anc = self.arm_blocks[i](ftmap, return_anchors=True)

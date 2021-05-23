@@ -8,18 +8,22 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from models import RefineDetVGG16
 from utils import read_jpeg_image, resize_image_and_boxes, absolute2relative
 from voc import load_voc_dataset, Augmentation
-from voc.config import IMAGE_SIZE, BATCH_SIZE, SHUFFLE_BUFFER, VOC_CLASSES, LR_SCHEDULE, MOMENTUM, NUM_EPOCHS, STEPS_PER_EPOCH
+from voc.config import (IMAGE_SIZE, BATCH_SIZE, VOC_CLASSES, LR_SCHEDULE,
+                        MOMENTUM, NUM_EPOCHS, STEPS_PER_EPOCH)
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--voc_root', type=str, default='./data/VOCdevkit',
                     help='Path to the VOCdevkit directory.')
 parser.add_argument('--checkpoint', type=str, default=None,
-                    help='Path to the weights file, in the case of resuming training.')
+                    help='Path to the weights file, in the case of '
+                    'resuming training.')
 parser.add_argument('--initial_epoch', type=int, default=0,
-                    help='Starting epoch. Give a value bigger than zero to resume training.')
+                    help='Starting epoch. Give a value bigger than zero '
+                    'to resume training.')
 parser.add_argument('--batch_size', type=int, default=None,
-                    help='Useful for quick tests. If not provided, the value in the config file is used instead.')
+                    help='Useful for quick tests. If not provided, '
+                    'the value in the config file is used instead.')
 args = parser.parse_args()
 
 BATCH_SIZE = args.batch_size or BATCH_SIZE
@@ -31,7 +35,7 @@ def build_dataset(img_paths, bboxes, repeat=False, shuffle=False,
     bboxes_concat = np.concatenate(bboxes, axis=0)
     bboxes = tf.RaggedTensor.from_row_lengths(values=bboxes_concat,
                                               row_lengths=row_lengths)
-    
+
     dataset = tf.data.Dataset.from_tensor_slices((img_paths, bboxes))
 
     if repeat:
@@ -53,27 +57,26 @@ def build_dataset(img_paths, bboxes, repeat=False, shuffle=False,
 
     # This hack is to allow batching into ragged tensors
     dataset = dataset.map(lambda image, boxes:
-                          (image, tf.expand_dims(boxes, 0)))        
+                          (image, tf.expand_dims(boxes, 0)))
     dataset = dataset.map(lambda image, boxes:
                           (image, tf.RaggedTensor.from_tensor(boxes)))
     dataset = dataset.batch(BATCH_SIZE, drop_remainder=drop_remainder)
     dataset = dataset.map(lambda image, boxes:
                           (image, boxes.merge_dims(1, 2)))
-    
-    return dataset
 
+    return dataset
 
 
 train_img_paths, train_bboxes = load_voc_dataset(
     dataroot=args.voc_root,
     splits=[('VOC2007', 'trainval'), ('VOC2012', 'trainval')],
-    keep_difficult = False, return_difficulty=False)
+    keep_difficult=False, return_difficulty=False)
 print('INFO: Loaded %d training samples' % len(train_img_paths))
 
 test_img_paths, test_bboxes = load_voc_dataset(
     dataroot=args.voc_root,
     splits=[('VOC2007', 'test')],
-    keep_difficult = True, return_difficulty=True)
+    keep_difficult=True, return_difficulty=True)
 print('INFO: Loaded %d testing samples' % len(test_img_paths))
 
 train_data = build_dataset(train_img_paths, train_bboxes,
@@ -95,10 +98,12 @@ else:
     # If training from scratch, initialize only the base CNN
     # with pretrained Imagenet weights
     model.base.load_weights(
-        path.join('weights', 'VGG_ILSVRC_16_layers_fc_reduced.h5'), by_name=True)
+        path.join('weights', 'VGG_ILSVRC_16_layers_fc_reduced.h5'),
+        by_name=True)
 
 
-lr_scheduler = tf.keras.optimizers.schedules.PiecewiseConstantDecay(*LR_SCHEDULE)
+lr_scheduler = \
+    tf.keras.optimizers.schedules.PiecewiseConstantDecay(*LR_SCHEDULE)
 optimizer = tf.keras.optimizers.SGD(lr_scheduler, momentum=MOMENTUM)
 optimizer.iterations = tf.Variable(STEPS_PER_EPOCH * args.initial_epoch)
 
@@ -109,7 +114,7 @@ model.compile(optimizer=optimizer)
 os.makedirs('weights', exist_ok=True)
 callbacks = [
     ModelCheckpoint(path.join('weights', 'refinedet_vgg16_{epoch:0d}.h5'),
-                    monitor='total_loss')    
+                    monitor='total_loss')
 ]
 
 model.fit(train_data, epochs=NUM_EPOCHS, steps_per_epoch=STEPS_PER_EPOCH,

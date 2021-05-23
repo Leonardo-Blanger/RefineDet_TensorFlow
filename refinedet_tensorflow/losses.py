@@ -1,9 +1,8 @@
 import tensorflow as tf
-from tensorflow.keras import backend as K
 from tensorflow.keras.losses import categorical_crossentropy
 
 from . import output_encoder
-from .utils import minmax2xywh, xywh2minmax, locenc2minmax
+from .utils import locenc2minmax
 
 
 def smooth_l1(a, b):
@@ -32,24 +31,24 @@ class RefineDetLoss(tf.keras.losses.Loss):
 
         super().__init__(reduction=tf.keras.losses.Reduction.NONE, **kwargs)
 
-
     def get_config(self):
         base_config = super().get_config()
-        return {**base_config, **self.encoding_params,
-                'num_classes': self.num_classes,
-                'anchor_refinement_threshold': self.anchor_refinement_threshold,
-                'neg_to_pos_ratio': self.neg_to_pos_ratio}
-
+        return {
+            **base_config, **self.encoding_params,
+            'num_classes': self.num_classes,
+            'anchor_refinement_threshold': self.anchor_refinement_threshold,
+            'neg_to_pos_ratio': self.neg_to_pos_ratio
+        }
 
     @tf.function
     def call(self, y_true, y_pred):
         (arm_cls, arm_loc), (odm_cls, odm_loc), anchors = y_pred
 
-        binary_y_true = tf.concat([y_true[...,:4],
-                                   tf.ones_like(y_true[...,4:5])], axis=-1)
+        binary_y_true = tf.concat([y_true[..., :4],
+                                   tf.ones_like(y_true[..., 4:5])], axis=-1)
 
-        true_cls, true_loc = output_encoder.encode(binary_y_true, anchors,
-                                                   num_classes=2, **self.encoding_params)
+        true_cls, true_loc = output_encoder.encode(
+            binary_y_true, anchors, num_classes=2, **self.encoding_params)
         true_cls = tf.stop_gradient(true_cls)
         true_loc = tf.stop_gradient(true_loc)
 
@@ -58,11 +57,13 @@ class RefineDetLoss(tf.keras.losses.Loss):
 
         refined_anchors = locenc2minmax(arm_loc, anchors, self.variances)
 
-        refined_cls, refined_loc = output_encoder.encode(y_true, refined_anchors,
-                                                         num_classes=self.num_classes,
-                                                         **self.encoding_params)
+        refined_cls, refined_loc = output_encoder.encode(
+            y_true, refined_anchors,
+            num_classes=self.num_classes,
+            **self.encoding_params)
 
-        ignore = arm_cls[..., :1] < self.anchor_refinement_threshold # not easy negatives
+        # not easy negatives
+        ignore = arm_cls[..., :1] < self.anchor_refinement_threshold
         ignore = tf.cast(ignore, tf.float32)
         refined_cls *= ignore
 
@@ -74,14 +75,10 @@ class RefineDetLoss(tf.keras.losses.Loss):
 
         return arm_cls_loss, arm_loc_loss, odm_cls_loss, odm_loc_loss
 
-
     def ssd_loss(self, y_true, y_pred):
         cls_true, loc_true = y_true
         cls_pred, loc_pred = y_pred
 
-        batch_size = tf.shape(cls_true)[0]
-        num_anchors = tf.shape(cls_true)[1]
-        
         negative_mask = cls_true[..., 0]
         positive_mask = tf.reduce_sum(cls_true[..., 1:], axis=-1)
         N = tf.reduce_sum(positive_mask)
@@ -93,7 +90,7 @@ class RefineDetLoss(tf.keras.losses.Loss):
 
         pos_cls_loss = positive_mask * cls_loss
         neg_cls_loss = negative_mask * cls_loss
-        
+
         num_negatives_to_keep = tf.minimum(
             tf.reduce_sum(negative_mask),
             N * self.neg_to_pos_ratio
@@ -103,9 +100,8 @@ class RefineDetLoss(tf.keras.losses.Loss):
         neg_cls_loss = tf.reshape(neg_cls_loss, [-1])
         neg_cls_loss = tf.sort(neg_cls_loss)[-num_negatives_to_keep:]
 
-        cls_loss = (tf.reduce_sum(pos_cls_loss) + tf.reduce_sum(neg_cls_loss)) / N
+        cls_loss = (tf.reduce_sum(pos_cls_loss) +
+                    tf.reduce_sum(neg_cls_loss)) / N
         loc_loss = tf.reduce_sum(loc_loss) / N
 
         return cls_loss, loc_loss
-
-
