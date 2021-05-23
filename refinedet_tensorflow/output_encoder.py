@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import backend as K
 
-from utils import minmax2locenc, locenc2minmax, IOU, NMS
+from .utils import minmax2locenc, locenc2minmax, IOU, NMS
 
 
 def encode(boxes_batch, anchors, num_classes=None,

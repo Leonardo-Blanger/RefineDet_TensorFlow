@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 
-from utils import IOU
+from .utils import IOU
 
 
 class MeanAveragePrecision(tf.keras.metrics.Metric):

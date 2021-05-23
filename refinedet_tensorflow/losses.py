@@ -2,8 +2,8 @@ import tensorflow as tf
 from tensorflow.keras import backend as K
 from tensorflow.keras.losses import categorical_crossentropy
 
-import output_encoder
-from utils import minmax2xywh, xywh2minmax, locenc2minmax
+from . import output_encoder
+from .utils import minmax2xywh, xywh2minmax, locenc2minmax
 
 
 def smooth_l1(a, b):

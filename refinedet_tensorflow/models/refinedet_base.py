@@ -1,8 +1,8 @@
 import tensorflow as tf
 
-from losses import RefineDetLoss
-import output_encoder
-from utils import locenc2minmax
+from ..losses import RefineDetLoss
+from .. import output_encoder
+from ..utils import locenc2minmax
 
 
 class RefineDetBase(tf.keras.Model):
