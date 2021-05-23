@@ -5,7 +5,7 @@ import os
 from os import path
 from PIL import Image
 
-from models import RefineDetVGG16
+from refinedet_tensorflow.models import RefineDetVGG16
 from voc.config import VOC_CLASSES, IMAGE_SIZE
 
 MODEL_FILE = path.join('weights', 'refinedet_vgg16_24.h5')
