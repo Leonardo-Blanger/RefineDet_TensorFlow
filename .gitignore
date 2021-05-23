@@ -3,3 +3,4 @@ __pycache__/
 *~
 weights/
 refinedet_tensorflow.egg-info/
+data/
