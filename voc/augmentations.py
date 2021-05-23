@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-import utils
+from refinedet_tensorflow import utils
 
 
 def random_uniform(l=0.0, r=1.0):
