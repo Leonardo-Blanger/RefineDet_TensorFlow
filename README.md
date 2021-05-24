@@ -2,7 +2,7 @@
 
 This project is intended to be a TensorFlow implementation of the RefineDet object detection architecture, from the paper *Single-Shot Refinement Neural Network for Object Detection* [(Zhang et al.)](https://arxiv.org/abs/1711.06897), originally made in Caffe.
 
-I mostly worked on this project during spare time, and as a way to learn more about TensorFlow in practice. Slight details might deviate from the official Caffee implementation, but all the main ideas are present.
+I mostly worked on this project during spare time, and as a way to learn more about TensorFlow in practice. Slight details might deviate from the official Caffe implementation, but all the main ideas are present.
 
 The code has been completely adapted to work with TensorFlow 2.0, and it only uses TF operations, instead of python logic + `tf.py_function` as was the case in the initial version of this project, which gave a significant boost in training speed.
 
