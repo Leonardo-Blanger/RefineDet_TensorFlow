@@ -8,6 +8,16 @@ The code has been completely adapted to work with TensorFlow 2.0, and it only us
 
 I am releasing an inference demo script, as well as a weights file, trained on the 20 class PASCAL VOC 07+12 trainval datasets [(Everingham et al.)](http://host.robots.ox.ac.uk/pascal/VOC/), with 320 x 320 input size. These weights are  achieving around 80% mean AP on the VOC 2007 test set, which is about the same as reported on the paper. But note that I used my own custom Python implementation of the VOC Mean Average Precision, which might deviate slightly from the official Matlab version.
 
+### Requirements
+
+You can create a conda environment with all necessary dependencies.
+
+``` Shell
+# inside the repo's root directory
+conda env create --file=env.yml --prefix=./env
+conda activate ./env
+```
+
 ### Running the demo
 
 In order to run the demo script on the sample images, first download the pretrained weights file from [here](https://mega.nz/file/37ZVSIZb#egkUaB0RhJ6FVYUMKp1WYOrMeSvYeQAIPBMm3VOhDTw) into `./weights`, and then simply run:
@@ -46,11 +56,18 @@ Take a look in this file to see optional parameters.
 
 ### Using this project
 
-If you want to use this implementation in another project, simply import the `models.RefineDetVGG16` class. Take a look at the file for clarification on the available parameters.
+You can install the main package as follows. If you are using an isolated environment (see above), make sure it is active.
 
-If you want to implement a different RefineDet based detector, you can extend `models.RefineDetBase` class and implement your own forward pass logic inside the `call` method. Follow the example in the `RefineDetVGG16` class.
+```
+# inside the repo's root directory
+python -m pip install .
+```
 
-If you want to retrain it on another dataset, I believe the files are easy enough to understant what is happening, so use the files `train_refinedet_voc.py` and `eval_refinedet_voc.py` as references for training and evaluation, respectively. If you are going to use the VGG16 CNN backbone [(Simonyan et al.)](https://arxiv.org/abs/1409.1556), download the pretrained weights from the 
+If you want to use this implementation in another project, simply import the `refinedet_tensorflow.models.RefineDetVGG16` class. Take a look at the file for clarification on the available parameters.
+
+If you want to implement a different RefineDet based detector, you can extend `refinedet_tensorflow.models.RefineDetBase` class and implement your own forward pass logic inside the `call` method. Follow the example in the `RefineDetVGG16` class.
+
+If you want to retrain it on another dataset, I believe the files are easy enough to understant what is happening, so use the scripts `train_refinedet_voc.py` and `eval_refinedet_voc.py` as references for training and evaluation, respectively. If you are going to use the VGG16 CNN backbone [(Simonyan et al.)](https://arxiv.org/abs/1409.1556), download the pretrained weights mentioned above into `./weights`.
 
 ### Samples
 
