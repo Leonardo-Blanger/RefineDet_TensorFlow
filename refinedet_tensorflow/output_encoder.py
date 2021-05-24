@@ -28,7 +28,7 @@ def encode(boxes_batch, anchors, num_classes=None,
 
         # Ensure the best anchor for each ground truth will be picked
         indices = tf.stack([tf.range(num_boxes), best_match_per_gt], axis=1)
-        updates = tf.zeros((num_boxes,), dtype=tf.float32) + 2.0
+        updates = tf.zeros(tf.shape(boxes)[:1], dtype=tf.float32) + 2.0
         batch_ious = tf.tensor_scatter_nd_update(batch_ious, indices, updates)
 
         # Then find the best ground truth for each anchor
