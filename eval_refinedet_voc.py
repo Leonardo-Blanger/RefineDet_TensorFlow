@@ -3,9 +3,11 @@ import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 
-from metrics import MeanAveragePrecision
-from models import RefineDetVGG16
-from utils import read_jpeg_image, resize_image_and_boxes, absolute2relative
+from refinedet_tensorflow.metrics import MeanAveragePrecision
+from refinedet_tensorflow.models import RefineDetVGG16
+from refinedet_tensorflow.utils import (read_jpeg_image,
+                                        resize_image_and_boxes,
+                                        absolute2relative)
 from voc import load_voc_dataset
 from voc.config import IMAGE_SIZE, BATCH_SIZE, VOC_CLASSES
 

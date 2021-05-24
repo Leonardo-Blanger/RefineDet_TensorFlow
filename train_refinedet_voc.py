@@ -5,8 +5,10 @@ from os import path
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint
 
-from models import RefineDetVGG16
-from utils import read_jpeg_image, resize_image_and_boxes, absolute2relative
+from refinedet_tensorflow.models import RefineDetVGG16
+from refinedet_tensorflow.utils import (read_jpeg_image,
+                                        resize_image_and_boxes,
+                                        absolute2relative)
 from voc import load_voc_dataset, Augmentation
 from voc.config import (IMAGE_SIZE, BATCH_SIZE, VOC_CLASSES, LR_SCHEDULE,
                         MOMENTUM, NUM_EPOCHS, STEPS_PER_EPOCH)
